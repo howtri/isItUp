@@ -5,9 +5,12 @@
 # continually check every x seconds to see if status changes
 # check for 10 sites and see if status changes
 
+from flask import Flask, redirect, url_for, request
 import socket
 import multiprocessing.pool
 import functools
+
+app = Flask(__name__)
 
 def timeout(time):
     """Timeout decorator, time is seconds until timeout error raised"""
@@ -43,20 +46,35 @@ def connect(domain, port):
     finally:
         tcp_connect.close()
 
-def main():
+def status(domain):
     """
     Need to add user in or argparse to accept sites to test
     """
-    domain = input('Enter Domain or IP: ')
+    # domain = input('Enter Domain or IP: ')
     port = 80
+    str_return = ''
     if connect(domain, port) == 0:
-        print(f'{domain}:{port} is up')
+        str_return = f'{domain}:{port} is up'
     else:
-        print(f'{domain}:{port} seems to be down')
+        str_return = f'{domain}:{port} seems to be down'
+    return str_return
 
 def display_chart():
     """Might need to make this all a class so sites are stored in a dict with domain name : status and displayed here"""
     pass
 
+@app.route('/success/<name>')
+def success(name):
+   return status(name)
+
+@app.route('/login',methods = ['POST', 'GET'])
+def login():
+   if request.method == 'POST':
+      user = request.form['nm']
+      return redirect(url_for('success',name = user))
+   else:
+      user = request.args.get('nm')
+      return redirect(url_for('success',name = user))
+
 if __name__ == '__main__':
-    main()
+   app.run(debug = True)
