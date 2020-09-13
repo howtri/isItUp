@@ -6,7 +6,7 @@ import sqlite3
 
 
 def initialize_table():
-    conn = sqlite3.connect('test.db')
+    conn = sqlite3.connect('cli-test')
     print("Opened database successfully")
 
     conn.execute('''CREATE TABLE DOMAINSTATS
@@ -18,7 +18,7 @@ def initialize_table():
 
 
 def read_table():
-    conn = sqlite3.connect('test.db')
+    conn = sqlite3.connect('cli-test')
     print("Opened database successfully")
 
     cursor = conn.execute("SELECT domain, port, status from DOMAINSTATS")
@@ -32,11 +32,12 @@ def read_table():
 
 
 def write_table(domain, port, status):
-    conn = sqlite3.connect('test.db')
+    conn = sqlite3.connect('cli-test')
     print("Opened database successfully")
 
+
     conn.execute("INSERT INTO DOMAINSTATS (DOMAIN,PORT,STATUS) \
-          VALUES (domain, port, status )")
+          VALUES (?,?,? )",(domain, port, status))
 
     conn.commit()
     print("Records created successfully")

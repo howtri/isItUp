@@ -8,6 +8,7 @@
 import socket
 import multiprocessing.pool
 import functools
+import dbactions
 
 def timeout(time):
     """Timeout decorator, time is seconds until timeout error raised"""
@@ -49,12 +50,20 @@ def main():
     """
     domain = input('Enter Domain or IP: ')
     port = 80
+
+    try:
+        dbactions.initialize_table()
+    except:
+        print('Table already initialized')
+
     if connect(domain, port) == 0:
         print(f'{domain}:{port} is up')
-        # write status to DB
+        dbactions.write_table(domain, port, 'OK')
     else:
         print(f'{domain}:{port} seems to be down')
-        # write status to DB
+        dbactions.write_table(domain, port, 'DOWN')
+
+    dbactions.read_table()
 
 def display_chart():
     """Might need to make this all a class so sites are stored in a dict with domain name : status and displayed here"""
