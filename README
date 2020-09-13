@@ -1,1 +1,7 @@
-check the status of a website. To implement this feature you can use TCP or ICMP for your connection. Socket programming in python will help you to make the connection. Use socket module in Python and to learn more about socket programming visit the link Python Socket or Python network programming . User should be able to add and remove sites from the list of sites to be checked. You can use docopt, click, or argparse frameworks to add commands for these features. Keep in mind that user should be capable to start the tool, stop it an d determine the intervals. You also need to save the list of the files checked and to do this you can use sqlite3 module of SQLite database.
+Checks the status of a website using TCP socket programming. 
+Contains a python script to run from CLI and another to run as a Flask application.
+Communicates with a sqlite db to store recently checked domain/IPs and list their statuses.
+
+Future:
+For CLI robust argparsing
+HTML page displays entries from db
