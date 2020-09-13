@@ -9,13 +9,23 @@ from flask import Flask, redirect, url_for, request
 import socket
 import multiprocessing.pool
 import functools
+from app import app
+from . import dbactions
 
-app = Flask(__name__)
+
+# app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return "It works!\n"
+
 
 def timeout(time):
     """Timeout decorator, time is seconds until timeout error raised"""
+
     def timeout_decorator(fn):
         """Wrap original function."""
+
         @functools.wraps(fn)
         def wrap(*args, **kwargs):
             """Creates multiprocessing pool to run function and timer"""
@@ -29,8 +39,11 @@ def timeout(time):
                 print(f'Connection timed out')
             finally:
                 pool.close()
+
         return wrap
+
     return timeout_decorator
+
 
 @timeout(5)
 def connect(domain, port):
@@ -46,35 +59,55 @@ def connect(domain, port):
     finally:
         tcp_connect.close()
 
-def status(domain):
+
+def status(domain, port=80):
     """
     Need to add user in or argparse to accept sites to test
     """
-    # domain = input('Enter Domain or IP: ')
-    port = 80
-    str_return = ''
-    if connect(domain, port) == 0:
-        str_return = f'{domain}:{port} is up'
-    else:
-        str_return = f'{domain}:{port} seems to be down'
-    return str_return
+    try:
+        dbactions.initialize_table()
+    except:
+        print('Table already initialized')
 
-def display_chart():
-    """Might need to make this all a class so sites are stored in a dict with domain name : status and displayed here"""
-    pass
+    result = ''
+
+    if connect(domain, port) == 0:
+        result += f'{domain}:{port} is up \n'
+        dbactions.write_table(domain, port, 'OK')
+    else:
+        result += f'{domain}:{port} seems to be down \n'
+        dbactions.write_table(domain, port, 'DOWN')
+
+    result += display_chart(dbactions.read_table())
+    return result
+
+
+def display_chart(data):
+    """status and displayed here"""
+    top_bottom = '--------------------------------------------'
+    format1 = ' ' * 20
+    table = top_bottom + '\n'
+
+    for row in data:
+        table += f'{row[0] + format1[len(row[0]):]} | {row[1]} | {row[2]} \n'
+
+    table += top_bottom
+    return table
+
 
 @app.route('/success/<name>')
 def success(name):
-   return status(name)
+    return status(name)
 
-@app.route('/login',methods = ['POST', 'GET'])
+
+@app.route('/login', methods=['POST', 'GET'])
 def login():
-   if request.method == 'POST':
-      user = request.form['nm']
-      return redirect(url_for('success',name = user))
-   else:
-      user = request.args.get('nm')
-      return redirect(url_for('success',name = user))
+    if request.method == 'POST':
+        user = request.form['nm']
+        return redirect(url_for('success', name=user))
+    else:
+        user = request.args.get('nm')
+        return redirect(url_for('success', name=user))
 
-if __name__ == '__main__':
-   app.run(debug = True)
+# if __name__ == '__main__':
+#    app.run(debug = True)
