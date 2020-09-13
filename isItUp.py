@@ -51,8 +51,10 @@ def main():
     port = 80
     if connect(domain, port) == 0:
         print(f'{domain}:{port} is up')
+        # write status to DB
     else:
         print(f'{domain}:{port} seems to be down')
+        # write status to DB
 
 def display_chart():
     """Might need to make this all a class so sites are stored in a dict with domain name : status and displayed here"""
