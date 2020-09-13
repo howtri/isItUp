@@ -20,24 +20,30 @@ def initialize_table():
 def read_table():
     conn = sqlite3.connect('cli-test')
     print("Opened database successfully")
-
     cursor = conn.execute("SELECT domain, port, status from DOMAINSTATS")
-    for row in cursor:
-       print("DOMAIN = ", row[0])
-       print("PORT = ", row[1])
-       print("STATUS = ", row[2], "\n")
+    # for row in cursor:
+    #     statuses.append((row[0], row[1], row[2]))
 
-    print("Print Completed")
+    statuses = [(row[0], row[1], row[2]) for row in cursor]
+    print("Rows Returned")
     conn.close()
+    return statuses
 
 
 def write_table(domain, port, status):
     conn = sqlite3.connect('cli-test')
     print("Opened database successfully")
 
+    try:
+        conn.execute("INSERT INTO DOMAINSTATS (DOMAIN,PORT,STATUS) \
+              VALUES (?,?,?)", (domain, port, status))
 
-    conn.execute("INSERT INTO DOMAINSTATS (DOMAIN,PORT,STATUS) \
-          VALUES (?,?,? )",(domain, port, status))
+    except sqlite3.IntegrityError:
+        print('Updating')
+        cursor = conn.cursor()
+        cursor.execute("""UPDATE DOMAINSTATS SET status=? WHERE domain=?;""", (status, domain))
+        cursor.close()
+        print('Update Successful!')
 
     conn.commit()
     print("Records created successfully")

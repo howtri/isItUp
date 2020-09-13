@@ -44,13 +44,10 @@ def connect(domain, port):
     finally:
         tcp_connect.close()
 
-def main():
+def status(domain, port=80):
     """
     Need to add user in or argparse to accept sites to test
     """
-    domain = input('Enter Domain or IP: ')
-    port = 80
-
     try:
         dbactions.initialize_table()
     except:
@@ -63,11 +60,20 @@ def main():
         print(f'{domain}:{port} seems to be down')
         dbactions.write_table(domain, port, 'DOWN')
 
-    dbactions.read_table()
+    display_chart(dbactions.read_table())
 
-def display_chart():
-    """Might need to make this all a class so sites are stored in a dict with domain name : status and displayed here"""
-    pass
+def display_chart(data):
+    """status and displayed here"""
+    top_bottom = '--------------------------------------------'
+    format1 = ' ' * 20
+    print(top_bottom)
+    for row in data:
+        print(f'{row[0] + format1[len(row[0]):]} | {row[1]} | {row[2]}')
+    print(top_bottom)
+
+def main():
+    domain = input('Enter Domain or IP: ')
+    status(domain)
 
 if __name__ == '__main__':
     main()
