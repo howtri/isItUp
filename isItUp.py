@@ -5,6 +5,7 @@
 # continually check every x seconds to see if status changes
 # check for 10 sites and see if status changes
 
+
 import socket
 import multiprocessing.pool
 import functools

@@ -5,19 +5,20 @@
 # continually check every x seconds to see if status changes
 # check for 10 sites and see if status changes
 
-from flask import Flask, redirect, url_for, request
+from flask import Flask, redirect, url_for, request, render_template
 import socket
 import multiprocessing.pool
 import functools
 from app import app
 from . import dbactions
 
-
-# app = Flask(__name__)
+# https://www.codementor.io/@sagaragarwal94/building-a-basic-restful-api-in-python-58k02xsiq
 
 @app.route('/')
 def index():
-    return "It works!\n"
+    # app/templates must contain login.html
+    # check this out for post https://pythonprogramming.net/flask-get-post-requests-handling-tutorial/
+    return render_template('login.html')
 
 
 def timeout(time):
@@ -95,19 +96,16 @@ def display_chart(data):
     return table
 
 
-@app.route('/success/<name>')
-def success(name):
+@app.route('/connect/<name>')
+def connect(name):
     return status(name)
 
 
-@app.route('/login', methods=['POST', 'GET'])
-def login():
+@app.route('/run', methods=['POST', 'GET'])
+def run():
     if request.method == 'POST':
         user = request.form['nm']
-        return redirect(url_for('success', name=user))
+        return redirect(url_for('connect', name=user))
     else:
         user = request.args.get('nm')
-        return redirect(url_for('success', name=user))
-
-# if __name__ == '__main__':
-#    app.run(debug = True)
+        return redirect(url_for('connect', name=user))

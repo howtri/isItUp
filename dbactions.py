@@ -34,6 +34,8 @@ def write_table(domain, port, status):
     conn = sqlite3.connect('cli-test')
     print("Opened database successfully")
 
+    # if greater than 10 push out last and write as first
+
     try:
         conn.execute("INSERT INTO DOMAINSTATS (DOMAIN,PORT,STATUS) \
               VALUES (?,?,?)", (domain, port, status))
