@@ -4,4 +4,6 @@ Communicates with a sqlite db to store recently checked domain/IPs and list thei
 
 Future:
 For CLI robust argparsing
-HTML page displays entries from db
+Allow users to set times to recheck sites and notify of changed statuses
+error codes for routes
+logging

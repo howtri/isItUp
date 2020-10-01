@@ -5,13 +5,12 @@
 # continually check every x seconds to see if status changes
 # flip the order of db and add the option to recheck sites with notifications if one changes
 
-from flask import Flask, redirect, url_for, request, render_template, flash
+from flask import Flask, redirect, url_for, request, render_template
 import socket
 import multiprocessing.pool
 import functools
-# from app import app
-import dbactions
-app = Flask(__name__)
+from app import app
+from application.app import dbactions
 
 # https://www.codementor.io/@sagaragarwal94/building-a-basic-restful-api-in-python-58k02xsiq
 
@@ -120,6 +119,3 @@ def sanitize(domain):
     if '/' in domain:
         domain = domain[:domain.index('/')]
     return domain
-
-if __name__ == '__main__':
-   app.run(debug = True)
