@@ -3,30 +3,27 @@
 
 # arg parser
 # continually check every x seconds to see if status changes
-# check for 10 sites and see if status changes
+# flip the order of db and add the option to recheck sites with notifications if one changes
 
-from flask import Flask, redirect, url_for, request, render_template
+from flask import Flask, redirect, url_for, request, render_template, flash
 import socket
 import multiprocessing.pool
 import functools
-from app import app
-from . import dbactions
+# from app import app
+import dbactions
+app = Flask(__name__)
 
 # https://www.codementor.io/@sagaragarwal94/building-a-basic-restful-api-in-python-58k02xsiq
 
 @app.route('/')
 def index():
-    # app/templates must contain login.html
-    # check this out for post https://pythonprogramming.net/flask-get-post-requests-handling-tutorial/
-    return render_template('login.html')
+    return render_template('start.html')
 
 
 def timeout(time):
     """Timeout decorator, time is seconds until timeout error raised"""
-
     def timeout_decorator(fn):
         """Wrap original function."""
-
         @functools.wraps(fn)
         def wrap(*args, **kwargs):
             """Creates multiprocessing pool to run function and timer"""
@@ -40,14 +37,16 @@ def timeout(time):
                 print(f'Connection timed out')
             finally:
                 pool.close()
-
         return wrap
-
     return timeout_decorator
 
 
 @timeout(5)
 def connect(domain, port):
+    """
+    Attempts to establish a connection with the passed domain and port via tcp socket connection
+    available is 0 for success
+    """
     try:
         tcp_connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         available = tcp_connect.connect_ex((domain, port))
@@ -61,51 +60,66 @@ def connect(domain, port):
         tcp_connect.close()
 
 
+@app.route('/connect/<domain>')
 def status(domain, port=80):
     """
-    Need to add user in or argparse to accept sites to test
+    Passed domain name from / route, initializes table if not initialized,
+    controls db communication, makes connect() call to determine up or down site,
+    displays the display.html page
     """
+    # if user passed a domain with port as domain:port we split and ensure port is an int
+    if ':' in domain:
+        split = domain.split(':')
+        domain = split[0]
+
+        try:
+            port_in = int(domain)
+            port = port_in
+        except:
+            print('Domain could not be converted to int')
+
+    # sanitizes the domain by removing any / or ;
+    sanitized = sanitize(domain)
+
     try:
         dbactions.initialize_table()
     except:
         print('Table already initialized')
 
-    result = ''
-
-    if connect(domain, port) == 0:
-        result += f'{domain}:{port} is up \n'
-        dbactions.write_table(domain, port, 'OK')
+    # connect method returns 0 when the connection was successful
+    if connect(sanitized, port) == 0:
+        connected = f'{sanitized}:{port} is up \n'
+        dbactions.write_table(sanitized, port, 'OK')
     else:
-        result += f'{domain}:{port} seems to be down \n'
-        dbactions.write_table(domain, port, 'DOWN')
+        connected = f'{sanitized}:{port} seems to be down \n'
+        dbactions.write_table(sanitized, port, 'DOWN')
 
-    result += display_chart(dbactions.read_table())
-    return result
-
-
-def display_chart(data):
-    """status and displayed here"""
-    top_bottom = '--------------------------------------------'
-    format1 = ' ' * 20
-    table = top_bottom + '\n'
-
-    for row in data:
-        table += f'{row[0] + format1[len(row[0]):]} | {row[1]} | {row[2]} \n'
-
-    table += top_bottom
-    return table
-
-
-@app.route('/connect/<name>')
-def connect(name):
-    return status(name)
+    result = dbactions.read_table()
+    return render_template("display.html",result = result, connected = connected)
 
 
 @app.route('/run', methods=['POST', 'GET'])
 def run():
+    """
+    Handles POST or GET method from / route
+    """
     if request.method == 'POST':
-        user = request.form['nm']
-        return redirect(url_for('connect', name=user))
+        domain = request.form['domname']
+        return redirect(url_for('status', domain=domain))
     else:
-        user = request.args.get('nm')
-        return redirect(url_for('connect', name=user))
+        domain = request.args.get('domname')
+        return redirect(url_for('status', domain=domain))
+
+
+def sanitize(domain):
+    """
+    Basic attempt to prevent SQL injection or small issues the app isn't yet built to handle
+    """
+    if ';' in domain:
+        domain = domain[:domain.index(';')]
+    if '/' in domain:
+        domain = domain[:domain.index('/')]
+    return domain
+
+if __name__ == '__main__':
+   app.run(debug = True)
