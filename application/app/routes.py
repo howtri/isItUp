@@ -12,6 +12,7 @@ import functools
 from app import app
 from application.app import dbactions
 
+
 # https://www.codementor.io/@sagaragarwal94/building-a-basic-restful-api-in-python-58k02xsiq
 
 @app.route('/')
@@ -21,8 +22,10 @@ def index():
 
 def timeout(time):
     """Timeout decorator, time is seconds until timeout error raised"""
+
     def timeout_decorator(fn):
         """Wrap original function."""
+
         @functools.wraps(fn)
         def wrap(*args, **kwargs):
             """Creates multiprocessing pool to run function and timer"""
@@ -36,7 +39,9 @@ def timeout(time):
                 print(f'Connection timed out')
             finally:
                 pool.close()
+
         return wrap
+
     return timeout_decorator
 
 
@@ -49,14 +54,12 @@ def connect(domain, port):
     try:
         tcp_connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         available = tcp_connect.connect_ex((domain, port))
+        tcp_connect.close()
         return available
-
     except socket.gaierror as dnsError:
         print(f'Domain name failed to resolve to IP. Error: {dnsError}')
     except Exception as genericError:
         print(f'Something else went wrong. Error: {genericError}')
-    finally:
-        tcp_connect.close()
 
 
 @app.route('/connect/<domain>')
@@ -72,7 +75,7 @@ def status(domain, port=80):
         domain = split[0]
 
         try:
-            port_in = int(domain)
+            port_in = int(split[1])
             port = port_in
         except:
             print('Domain could not be converted to int')
@@ -94,7 +97,7 @@ def status(domain, port=80):
         dbactions.write_table(sanitized, port, 'DOWN')
 
     result = dbactions.read_table()
-    return render_template("display.html",result = result, connected = connected)
+    return render_template("display.html", result=result, connected=connected)
 
 
 @app.route('/run', methods=['POST', 'GET'])
