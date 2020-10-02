@@ -1,9 +1,4 @@
-Checks the status of a website using TCP socket programming. 
-Contains a python script to run from CLI and another to run as a Flask application.
-Communicates with a sqlite db to store recently checked domain/IPs and list their statuses.
-
-Future:
-For CLI robust argparsing
-Allow users to set times to recheck sites and notify of changed statuses
-error codes for routes
-logging
+Package that builds a site that accepts a domain name or IP from the landing page and checks if the site is available
+via tcp socket connection. Stores sites checked and their statuses in a local sqlite db. Routes are exposed with Flask
+via gunicorn. Nginx is used as the reverse-proxy to accept requests.
+a
