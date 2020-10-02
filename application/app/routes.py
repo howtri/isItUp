@@ -1,19 +1,13 @@
 # Tristan Howell
-# Site Connectivity Checker
-
-# arg parser
-# continually check every x seconds to see if status changes
-# flip the order of db and add the option to recheck sites with notifications if one changes
+# Site Connectivity Checker webapp using Flask, sqlite, and Nginx. Deployed with Ansible
 
 from flask import Flask, redirect, url_for, request, render_template
 import socket
 import multiprocessing.pool
 import functools
 from app import app
-from application.app import dbactions
+from app import dbactions
 
-
-# https://www.codementor.io/@sagaragarwal94/building-a-basic-restful-api-in-python-58k02xsiq
 
 @app.route('/')
 def index():
@@ -35,8 +29,8 @@ def timeout(time):
                 # raises a TimeoutError if execution exceeds max_timeout
                 return async_result.get(time)
             # for some reason this won't display more info if excepted 'as timeoutError' to display
-            except Exception:
-                print(f'Connection timed out')
+            except Exception as generic_exception:
+                print(f'Connection timed out. Error: {generic_exception}')
             finally:
                 pool.close()
 
@@ -77,8 +71,8 @@ def status(domain, port=80):
         try:
             port_in = int(split[1])
             port = port_in
-        except:
-            print('Domain could not be converted to int')
+        except ValueError as notInt:
+            print(f'Port could not be converted to int. Error {notInt}')
 
     # sanitizes the domain by removing any / or ;
     sanitized = sanitize(domain)

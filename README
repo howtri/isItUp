@@ -1,4 +1,9 @@
 Package that builds a site that accepts a domain name or IP from the landing page and checks if the site is available
 via tcp socket connection. Stores sites checked and their statuses in a local sqlite db. Routes are exposed with Flask
 via gunicorn. Nginx is used as the reverse-proxy to accept requests.
-a
+
+All necessary files to run the application are contained within application/app. The ansible-playbook directory is
+only needed for the controller to configure hosts to run the application.
+If you are using ansible from your machine you must install Ansible
+ex: sudo apt-get install ansible
+Then you must modify the IPs within ansible-playbook/deploy/hosts
