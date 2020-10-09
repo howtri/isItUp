@@ -76,7 +76,7 @@ def status(domain, port=80):
 
         try:
             # ensures that the str following : is a number and is 5 or less digits
-            if len(port_in) <= 5:
+            if len(split[1]) <= 5:
                 port_in = int(split[1])
                 port = port_in
 
@@ -132,7 +132,3 @@ def sanitize(domain):
         domain = domain[:domain.index('/')]
     return domain
 
-# def export_json():
-#     """
-#     Outputs all connection information as JSON for GET request
-#     """
