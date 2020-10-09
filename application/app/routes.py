@@ -11,8 +11,7 @@ from app import app
 from app import dbactions
 
 
-logging.basicConfig(filename='./app/logs/routes.log', filemode='w',
-                    format='%(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='./app/logs/routes.log',level=logging.DEBUG)
 
 @app.route('/')
 def index():
@@ -22,7 +21,6 @@ def index():
 
 def timeout(time):
     """Timeout decorator, time is seconds until timeout error raised"""
-
     def timeout_decorator(fn):
         """Wrap original"""
         @functools.wraps(fn)
@@ -122,6 +120,20 @@ def run():
         return redirect(url_for('status', domain=domain))
 
 
+@app.errorhandler(404)
+def not_found(error):
+    """Handles 404 error in the case the user is mis-directed"""
+    logging.error('Page not found: %s', (error))
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    """Handles server side errors, this will most likely be leaving the domain input blank"""
+    logging.error('Server Error: %s', (error))
+    return render_template('500.html'), 500
+
+
 def sanitize(domain):
     """
     Basic attempt to prevent SQL injection or small issues the app isn't yet built to handle
@@ -131,4 +143,3 @@ def sanitize(domain):
     if '/' in domain:
         domain = domain[:domain.index('/')]
     return domain
-

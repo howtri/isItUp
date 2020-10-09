@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Results</title>
+  <title>Bootstrap Example</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
@@ -9,22 +9,9 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
    <body>
-
-    <div class="container-fluid">
-    <h3 class="text-success">{{ connected }}</h3>
-      <table class="table table-striped">
-         {% for value in result %}
-            <tr>
-               <td> {{ value }} </td>
-            </tr>
-         {% endfor %}
-      </table>
+      <h3 class="text-danger"> Error 500, Server Side Error | Make sure you enter a domain name </h3>
       <button type="button" class="btn btn-default">
-      <a href="/">Check another site</a>
+      <a href="/">Return to Homepage</a>
       </button>
-      <button type="button" class="btn btn-default">
-      <a href="/">Retrieve connection data</a>
-      </button>
-    </div>
    </body>
 </html>
