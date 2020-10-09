@@ -13,13 +13,11 @@ from app import dbactions
 def index():
     return render_template('start.html')
 
-
 def timeout(time):
     """Timeout decorator, time is seconds until timeout error raised"""
 
     def timeout_decorator(fn):
-        """Wrap original function."""
-
+        """Wrap original"""
         @functools.wraps(fn)
         def wrap(*args, **kwargs):
             """Creates multiprocessing pool to run function and timer"""
@@ -33,9 +31,7 @@ def timeout(time):
                 print(f'Connection timed out. Error: {generic_exception}')
             finally:
                 pool.close()
-
         return wrap
-
     return timeout_decorator
 
 
@@ -47,7 +43,7 @@ def connect(domain, port):
     """
     try:
         tcp_connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        available = tcp_connect.connect_ex((domain, port))
+        available = tcp_connect.connect_ex((host, port))
         tcp_connect.close()
         return available
     except socket.gaierror as dnsError:

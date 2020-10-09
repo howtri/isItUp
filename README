@@ -7,3 +7,4 @@ only needed for the controller to configure hosts to run the application.
 If you are using ansible from your machine you must install Ansible
 ex: sudo apt-get install ansible
 Then you must modify the IPs within ansible-playbook/deploy/hosts
+Run playbook with: ansible-playbook deploy.yaml
